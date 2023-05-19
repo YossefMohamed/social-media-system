@@ -5,6 +5,24 @@ import MainLayout from "./layouts/MainLayout";
 import Login from "./pages/Login";
 import "./index.css";
 import Register from "./pages/Register";
+import { QueryClient, QueryClientProvider } from "react-query";
+import { Toaster } from "react-hot-toast";
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      retry: 3,
+      retryDelay: 8000,
+    },
+    mutations: {
+      retry: false,
+      retryDelay: 50000,
+    },
+  },
+});
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -26,4 +44,10 @@ const router = createBrowserRouter([
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
 );
-root.render(<RouterProvider router={router} />);
+root.render(
+  <QueryClientProvider client={queryClient}>
+    <Toaster position="top-center" reverseOrder={false} />
+
+    <RouterProvider router={router} />
+  </QueryClientProvider>
+);
