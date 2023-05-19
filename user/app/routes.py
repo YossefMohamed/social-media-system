@@ -1,4 +1,4 @@
-from flask import Blueprint, request , jsonify
+from flask import Blueprint, request , jsonify ,Response
 import jwt
 from db import mysql
 import bcrypt
@@ -26,11 +26,17 @@ def get_user_by_id(user_id):
         cur.close()
         print(data)
         if not len(data) :
-            return jsonify({"error": "user not found"})
+            return Response(
+                "user not found",
+                status=404,
+            )
         user = data[0]
         return jsonify({ "user" : user})
     except Exception as e :
-        return {"error" : str(e)}
+        return Response(
+           {"error" :  str(e)},
+            status=404,
+        )
 
 
 
@@ -41,7 +47,10 @@ def get_current_user():
         current_user = check_token()
         return jsonify({ "user" : current_user})
     except Exception as e :
-        return {"error" : str(e)}
+        return Response(
+           {"error" :  str(e)},
+                status=404,
+            )
 
 
 
@@ -55,18 +64,27 @@ def login():
     password = request.json["password"]
 
     if not username and not password:
-         return jsonify({"error": "Invalid username or password"})
+        return Response(
+               "Invalid username or password",
+                status=404,
+            )
     # Check if the user exists and the password is correct
     print(username)
     cursor = mysql.connection.cursor()
     cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
     data =cursor.fetchall()
     if not len(data) :
-        return jsonify({"error": "Invalid username or password"})
+       return Response(
+                    {"error" : "Invalid username or password"},
+                status=404,
+            )
     user = data[0]
     cursor.close()
     if not bcrypt.checkpw(password.encode("utf-8"), user["password"].encode("utf-8")):
-        return jsonify({"error": "Invalid username or password"})
+        return Response(
+                    {"error" : "Invalid username or password"},
+                        status=404,
+                    )
     token = jwt.encode({"id": user["id"],"username" : user["username"]}, "secret", algorithm="HS256")
     return {"id": user["id"],"username" : user["username"],"token": token}
 
@@ -83,7 +101,10 @@ def register():
     data = cursor.fetchall()
     cursor.close()    
     if len(data):
-        return {"error": "username already exists"}
+        return Response(
+                    {"error" : "username already exists"},
+                        status=404,
+                    )
     hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
     cursor = mysql.connection.cursor()
     cursor.execute("INSERT INTO users (username, password) VALUES (%s,%s)", (username , hashed_password))
