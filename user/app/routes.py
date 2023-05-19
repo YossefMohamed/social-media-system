@@ -5,23 +5,48 @@ import bcrypt
 
 routes = Blueprint("routes", __name__,url_prefix='/api/users')
 
-def check_token(token):
+def check_token():
     try:
-        data = jwt.decode(token , "secret" , algorithms=['HS256'])
-        return data["user_id"]
-    except:
-        raise Exception("Invalid Token")
+        token = request.headers["Authorization"]
+        token = token.split(" ")[1]
+        data = jwt.decode(token , "secret", algorithms=["HS256"])
+        return data
+    except Exception as e:
+        raise Exception("please login again")
 
 
 
 @routes.route('/<int:user_id>')
 def get_user_by_id(user_id):
-    cur = mysql.connection.cursor()
-    cur.execute('SELECT * FROM users WHERE id = %s', (str(user_id)))
-    data = cur.fetchall()
-    cur.close()
-    user = 3
-    return jsonify({ "user" : user_id})
+    try:
+        current_user = check_token()
+        cur = mysql.connection.cursor()
+        cur.execute('SELECT * FROM users WHERE id = %s', (str(user_id)))
+        data = cur.fetchall()
+        cur.close()
+        print(data)
+        if not len(data) :
+            return jsonify({"error": "user not found"})
+        user = data[0]
+        return jsonify({ "user" : user})
+    except Exception as e :
+        return {"error" : str(e)}
+
+
+
+
+@routes.route('/')
+def get_current_user():
+    try:
+        current_user = check_token()
+        return jsonify({ "user" : current_user})
+    except Exception as e :
+        return {"error" : str(e)}
+
+
+
+
+
 
 
 @routes.route('/login', methods=["POST"])
