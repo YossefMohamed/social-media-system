@@ -31,7 +31,7 @@ def get_user_by_id(user_id):
                 status=404,
             )
         user = data[0]
-        return jsonify({ "user" : user})
+        return jsonify({ "data" : user})
     except Exception as e :
         return Response(
            {"error" :  str(e)},
@@ -45,7 +45,7 @@ def get_user_by_id(user_id):
 def get_current_user():
     try:
         current_user = check_token()
-        return jsonify({ "user" : current_user})
+        return jsonify({ "data" : current_user})
     except Exception as e :
         return Response(
            {"error" :  str(e)},
@@ -86,7 +86,7 @@ def login():
                         status=404,
                     )
     token = jwt.encode({"id": user["id"],"username" : user["username"]}, "secret", algorithm="HS256")
-    return {"id": user["id"],"username" : user["username"],"token": token}
+    return {"data" :{"id": user["id"],"username" : user["username"],"token": token}}
 
 
 
@@ -115,4 +115,4 @@ def register():
     user = (data[0])
     token = jwt.encode({"id": user["id"],"username" : user["username"]}, "secret", algorithm="HS256")
     # Return the token to the user
-    return {"id": user["id"],"username" : user["username"],"token": token}
+    return {"data" : {"id": user["id"],"username" : user["username"],"token": token}}
