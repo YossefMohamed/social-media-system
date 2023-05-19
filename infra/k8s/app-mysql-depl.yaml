@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-mysql-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app-mysql
+  template:
+    metadata:
+      labels:
+        app: app-mysql
+    spec:
+      containers:
+        - name: app-mysql
+          image: mysql
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+spec:
+  type: NodePort
+  ports:
+    - port: 3306
+      targetPort: 3306
+      nodePort: 30033
+  selector:
+    app: mysql
