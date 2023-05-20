@@ -25,3 +25,28 @@
   width: 100% !important;
   margin: 3rem 0;
 }
+
+.posts-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  gap: 50px;
+}
+
+.posts-container .post {
+  margin: 10px;
+  padding: 10px;
+}
+
+.posts-container .post .header {
+  font-size: 20px;
+}
+
+.posts-container .post .content {
+  font-size: 14px;
+}
+
+.mb-5 {
+  margin-bottom: 50px;
+}

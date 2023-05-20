@@ -1,14 +1,19 @@
 import axios, { AxiosError } from "axios";
 import { useMutation } from "react-query";
+import { useSelector } from "react-redux";
+import { Rootstate } from "../redux/store";
 
-type LoginData = {
-  username: string;
-  password: string;
+type PostData = {
+  content: string;
 };
 
-const postUserData = async (data: LoginData) => {
+const createNewPost = async (data: PostData, token: string) => {
   const res = await axios
-    .post(`http://127.0.0.1:5000/api/users/login`, data)
+    .post(`http://localhost:5001/api/posts`, data, {
+      headers: {
+        Authorization: "Bearer " + token,
+      },
+    })
     .then((response) => {
       data = response.data;
       return data;
@@ -27,6 +32,7 @@ const postUserData = async (data: LoginData) => {
   return res;
 };
 
-export const useUserLogin: any = () => {
-  return useMutation((data: LoginData) => postUserData(data), {});
+export const useCeatePost: any = () => {
+  const { token } = useSelector((state: Rootstate) => state.authState);
+  return useMutation((data: PostData) => createNewPost(data, token), {});
 };
