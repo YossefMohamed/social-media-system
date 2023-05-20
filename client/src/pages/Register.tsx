@@ -13,15 +13,16 @@ const Register = () => {
     mutate: register,
     isSuccess,
     isError,
+    error,
   } = useUserRegister();
 
   React.useEffect(() => {
     if (isSuccess) {
       toast.success("Login Successful!");
-      console.log(data);
+      localStorage.setItem("token", data.data.token);
+      navigate("/");
     }
-    // navigate("/");
-    isError && toast.error("Invalide username or password");
+    isError && toast.error(error);
   }, [isSuccess, isError, data, navigate]);
 
   return (

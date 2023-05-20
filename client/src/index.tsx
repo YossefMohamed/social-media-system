@@ -5,8 +5,14 @@ import MainLayout from "./layouts/MainLayout";
 import Login from "./pages/Login";
 import "./index.css";
 import Register from "./pages/Register";
+import Index from "./pages/Index";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { Toaster } from "react-hot-toast";
+import { store } from "./redux/store";
+import { Provider } from "react-redux";
+import PostForm from "./pages/PostForm";
+import Users from "./pages/Users";
+import User from "./pages/User";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -29,6 +35,7 @@ const router = createBrowserRouter([
     element: <MainLayout />,
     errorElement: <div>Error Not Found 404</div>,
     children: [
+      { index: true, element: <Index /> },
       {
         path: "login",
         element: <Login />,
@@ -36,6 +43,18 @@ const router = createBrowserRouter([
       {
         path: "register",
         element: <Register />,
+      },
+      {
+        path: "post",
+        element: <PostForm />,
+      },
+      {
+        path: "users",
+        element: <Users />,
+      },
+      {
+        path: "users/:id",
+        element: <User />,
       },
     ],
   },
@@ -46,8 +65,10 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <QueryClientProvider client={queryClient}>
-    <Toaster position="top-center" reverseOrder={false} />
+    <Provider store={store}>
+      <Toaster position="top-center" reverseOrder={false} />
 
-    <RouterProvider router={router} />
+      <RouterProvider router={router} />
+    </Provider>
   </QueryClientProvider>
 );

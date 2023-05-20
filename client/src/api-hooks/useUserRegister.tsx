@@ -1,4 +1,5 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
+
 import { useMutation } from "react-query";
 
 type RegisterData = {
@@ -8,14 +9,23 @@ type RegisterData = {
 const postUserData = async (data: RegisterData) => {
   const res = await axios
     .post(`http://127.0.0.1:5000/api/users/register`, data)
-    .then((res) => {
-      return res.data.user;
+    .then((response) => {
+      data = response.data;
+      return data;
     })
-    .catch((e) => e.response.data);
+    .catch((error: AxiosError) => {
+      if (error.response) {
+        return Promise.reject(error.response.data);
+      } else if (error.request) {
+        return Promise.reject(error.message);
+      } else {
+        console.log(error.message);
+      }
+      return Promise.reject("Server error");
+    });
 
   return res;
 };
-
-export const useUserRegister = () => {
+export const useUserRegister: any = () => {
   return useMutation((data: RegisterData) => postUserData(data), {});
 };
