@@ -4,8 +4,6 @@ from helpers import check_token , is_current_user_author
 
 routes = Blueprint("routes", __name__,url_prefix='/api/posts')
 
-
-
 @routes.route('/', methods=["POST"])
 def create_post():
     try:
@@ -19,13 +17,9 @@ def create_post():
         }})
     except Exception as e :
         return Response(
-           {"error" :  str(e)},
+           str(e),
                 status=404,
             )
-
-
-
-
 
 @routes.route('/my')
 def get_current_user_posts():
@@ -39,7 +33,7 @@ def get_current_user_posts():
         cursor.close()    
         if not len(data):
             return Response(
-                        {"error" : "posts not found"},
+                        "posts not found",
                             status=404,
                         )
         print(data)
@@ -47,14 +41,9 @@ def get_current_user_posts():
     except Exception as e :
         print(str(e))
         return Response(
-           {"error" :  str(e)},
+           str(e),
                 status=404,
             )
-
-
-
-
-
 
 @routes.route("/<int:post_id>", methods=["DELETE"])
 def delete_post(post_id):
@@ -71,11 +60,10 @@ def delete_post(post_id):
         cur.close()
         return  {"message": "post deleted"}
     except Exception as e :
-        return {"error" :  str(e)}
-    
-
-
-
+        return Response(
+             str(e),
+                status=404,
+            )
 
 @routes.route("/<int:post_id>", methods=["PATCH"])
 def edit_post(post_id):
@@ -83,7 +71,7 @@ def edit_post(post_id):
         current_user = check_token()
         if not is_current_user_author(post_id):
             return Response(
-            {"error" :  "Post not found"},
+            "Post not found",
                 status=404,
             )
         content = request.json["content"]
@@ -96,7 +84,7 @@ def edit_post(post_id):
         }})
     except Exception as e :
         return Response(
-           {"error" :  str(e)},
+             str(e),
                 status=404,
             )
     
@@ -119,6 +107,26 @@ def get_feed():
         return jsonify({ "data" : posts})
     except Exception as e :
         return Response(
-           {"error" :  str(e)},
+             str(e),
                 status=404,
             )
+
+@routes.route("/<int:user_id>")
+def get_user_posts(user_id):
+    try:
+        current_user = check_token()
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT posts.id, posts.content, posts.author_id, users.username FROM posts INNER JOIN users ON posts.author_id = users.id WHERE posts.author_id = %s", (user_id,))
+        data = cursor.fetchall()
+        cursor.close()
+        if not len(data):
+            return Response(
+            "posts not found",
+            status=404,
+            )
+        return jsonify({ "data" : data})
+    except Exception as e :
+        return Response(
+        str(e),
+        status=404,
+        )
