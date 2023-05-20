@@ -34,7 +34,7 @@ def get_user_by_id(user_id):
         return jsonify({ "data" : user})
     except Exception as e :
         return Response(
-           {"error" :  str(e)},
+           str(e),
             status=404,
         )
 
@@ -48,10 +48,38 @@ def get_current_user():
         return jsonify({ "data" : current_user})
     except Exception as e :
         return Response(
-           {"error" :  str(e)},
+           str(e),
                 status=404,
             )
 
+
+
+
+@routes.route('/all')
+def get_all_users():
+    try:
+        current_user = check_token()
+        cur = mysql.connection.cursor()
+        cur.execute('SELECT * FROM users')
+        data = cur.fetchall()
+        cur.close()
+        if not len(data) :
+            return Response(
+                "users not found",
+                status=404,
+            )
+        users = []
+        for user in data:
+            users.append({
+                "id": user["id"],
+                "username": user["username"],
+            })
+        return jsonify({ "data" : users})
+    except Exception as e :
+        return Response(
+          str(e),
+            status=404,
+        )
 
 
 
@@ -75,14 +103,14 @@ def login():
     data =cursor.fetchall()
     if not len(data) :
        return Response(
-                    {"error" : "Invalid username or password"},
+                 "Invalid username or password",
                 status=404,
             )
     user = data[0]
     cursor.close()
     if not bcrypt.checkpw(password.encode("utf-8"), user["password"].encode("utf-8")):
         return Response(
-                    {"error" : "Invalid username or password"},
+                     "Invalid username or password",
                         status=404,
                     )
     token = jwt.encode({"id": user["id"],"username" : user["username"]}, "secret", algorithm="HS256")
@@ -102,7 +130,7 @@ def register():
     cursor.close()    
     if len(data):
         return Response(
-                    {"error" : "username already exists"},
+                    "username already exists",
                         status=404,
                     )
     hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
@@ -119,36 +147,6 @@ def register():
 
 
 
-
-
-@routes.route("/all")
-def get_all_users():
-    try:
-        current_user = check_token()
-        print(current_user)
-        cur = mysql.connection.cursor()
-        cur.execute('SELECT * FROM users')
-        data = cur.fetchall()
-        cur.close()
-        print(data)
-        if not len(data) :
-            return Response(
-                "users not found",
-                status=404,
-            )
-        users = []
-        for user in data:
-            users.append({
-                "id": user["id"],
-                "username": user["username"],
-            })
-        return jsonify({ "data" : users})
-    except Exception as e :
-        return Response(
-           {"error" :  str(e)},
-            status=404,
-        )
-    
 
 
 
@@ -187,7 +185,7 @@ def get_following():
         return jsonify({ "data" : users})
     except Exception as e :
         return Response(
-            {"error" :  str(e)},
+             str(e),
                 status=404,
             )
     
@@ -213,7 +211,7 @@ def get_followers():
         return jsonify({ "data" : users})
     except Exception as e :
         return Response(
-            {"error" :  str(e)},
+           str(e),
                 status=404,
             )
 
@@ -229,6 +227,6 @@ def unfollow_user(user_id):
         return  {"message": "user unfollowed"}
     except Exception as e :
         return Response(
-            {"error" :  str(e)},
+             str(e),
                 status=404,
             )
