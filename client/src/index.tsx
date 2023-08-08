@@ -13,6 +13,9 @@ import { Provider } from "react-redux";
 import PostForm from "./pages/PostForm";
 import Users from "./pages/Users";
 import User from "./pages/User";
+import Groups from "./pages/Groups";
+import Group from "./pages/Group";
+import NewGroupForm from "./pages/NewGroupForm";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -55,6 +58,18 @@ const router = createBrowserRouter([
       {
         path: "users/:id",
         element: <User />,
+      },
+      {
+        path: "groups",
+        element: <Groups />,
+      },
+      {
+        path: "groups/:id",
+        element: <Group />,
+      },
+      {
+        path: "groups/new",
+        element: <NewGroupForm />,
       },
     ],
   },
